@@ -274,7 +274,10 @@ on_message_acked(#{client_id := ClientId}, Message = #message{topic = Topic, fla
 
 send_http_request(Params) ->
     Params1 = jsx:encode(Params),
-    Url = application:get_env(?APP, url, "http://127.0.0.1"),
+    [Action|_] = Params,
+    ActionName = atom_to_list(element(2, Action)), %% get action name from tuple and convert it from atom to string
+    Url = application:get_env(?APP, url, "http://127.0.0.1") ++ "/" ++ ActionName,
+    io:fwrite(Url ++ "\n"),
     ?LOG(debug, "Url:~p, params:~s", [Url, Params1]),
     case request_(post, {Url, [], "application/json", Params1}, [{timeout, 5000}], [], 0) of
         {ok, _} -> ok;
